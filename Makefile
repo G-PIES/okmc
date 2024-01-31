@@ -6,12 +6,12 @@ BUILD_PATH    := ./build/$(CONFIGURATION)-$(COMPILER)
 OBJ_PATH      := $(BUILD_PATH)/obj
 EXE           := $(BUILD_PATH)/okmc
 
-CXX_FILES := $(sort $(wildcard $(SRC_PATH)/*.cpp))
+CXX_FILES := $(sort $(shell find $(SRC_PATH) -type f -name '*.cpp'))
 OBJ_FILES := $(CXX_FILES:$(SRC_PATH)/%.cpp=$(OBJ_PATH)/%.o)
 DEP_FILES := $(CXX_FILES:$(SRC_PATH)/%.cpp=$(OBJ_PATH)/%.d)
 OBJ_DIRS  := $(sort $(dir $(OBJ_FILES)))
 
-CXXFLAGS := -MMD -MP -Wall
+CXXFLAGS := -MMD -MP -Wall -std=c++17
 LDFLAGS  :=
 
 CXXFLAGS.debug   := -Og -fsanitize=undefined -fsanitize=address
