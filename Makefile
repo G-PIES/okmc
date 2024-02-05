@@ -14,9 +14,9 @@ OBJ_DIRS  := $(sort $(dir $(OBJ_FILES)))
 CXXFLAGS := -MMD -MP -Wall -std=c++17
 LDFLAGS  :=
 
-CXXFLAGS.debug   := -Og -fsanitize=undefined -fsanitize=address
+CXXFLAGS.debug   := -O0 -g3 -fsanitize=undefined -fsanitize=address
 CXXFLAGS.release := -O3
-LDFLAGS.debug    := -Og -fsanitize=undefined -fsanitize=address
+LDFLAGS.debug    := -O0 -g3 -fsanitize=undefined -fsanitize=address
 LDFLAGS.release  := -O3
 
 CXX.clang := clang++
@@ -40,13 +40,18 @@ LDFLAGS.release.gcc  :=
 CXXFLAGS := $(strip $(CXXFLAGS) $(CXXFLAGS.$(CONFIGURATION)) $(CXXFLAGS.$(COMPILER)) $(CXXFLAGS.$(CONFIGURATION).$(COMPILER)))
 LDFLAGS  := $(strip $(LDFLAGS) $(LDFLAGS.$(CONFIGURATION)) $(LDFLAGS.$(COMPILER)) $(LDFLAGS.$(CONFIGURATION).$(COMPILER)))
 
-CXX := $(CXX.$(COMPILER))
-LD  := $(LD.$(COMPILER))
+CXX = $(CXX.$(COMPILER))
+LD  = $(LD.$(COMPILER))
+
+.PHONY: all clean run
 
 clean:
 	rm -rf $(BUILD_PATH)
 
 all: $(EXE)
+
+run: $(EXE)
+	$(EXE)
 
 $(EXE): $(OBJ_DIRS) $(OBJ_FILES)
 	$(LD) $(LDFLAGS) $(OBJ_FILES) -o $(EXE)
