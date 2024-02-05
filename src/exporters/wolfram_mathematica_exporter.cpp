@@ -16,28 +16,38 @@ void WolframMathematicaExporter::export_model(Model *model) {
             objects.end(),
             0,
             [](const int a, const int b) { return std::max(a, b); },
-            [](ModelObject *object) { return static_cast<Defect *>(object)->size; });
+            [](ModelObject *object) { return object == nullptr ? 0 : static_cast<Defect *>(object)->size; });
+    int max_type = 2;
 
-    std::vector<Defect *> defects_by_size[max_size];
+    std::vector<Defect *> defects_by_size[max_size][max_type];
     for (ModelObject *object: objects) {
         Defect *defect = static_cast<Defect *>(object);
-        defects_by_size[defect->size - 1].push_back(defect);
+        if (defect == nullptr) {
+            continue;
+        }
+        defects_by_size[defect->size - 1][defect->type - 1].push_back(defect);
     }
 
     out << "AppendTo[Objects, {";
     for (int size = 1; size <= max_size; size++) {
-        out << "{";
-        bool is_first = true;
-        for (Defect *defect: defects_by_size[size - 1]) {
-            if (is_first) {
-                is_first = false;
-            } else {
+        for (int type = 1; type <= max_type; type++) {
+            out << "{";
+            bool is_first = true;
+            for (Defect *defect: defects_by_size[size - 1][type - 1]) {
+                if (is_first) {
+                    is_first = false;
+                } else {
+                    out << ",";
+                }
+
+                out << "{" << defect->position.x << "," << defect->position.y << "," << defect->position.z << "}";
+            }
+            out << "}";
+
+            if (type != max_type) {
                 out << ",";
             }
-
-            out << "{" << defect->position.x << "," << defect->position.y << "," << defect->position.z << "}";
         }
-        out << "}";
 
         if (size != max_size) {
             out << ",";
@@ -47,7 +57,8 @@ void WolframMathematicaExporter::export_model(Model *model) {
 
     out << "AppendTo[PlotStyles, {";
     for (int size = 1; size <= max_size; size++) {
-        out << "Directive[Red,PointSize[" << size * 0.01 << "]]";
+        out << "Directive[" << "Red" << ",PointSize[" << size * 0.01 << "]],";
+        out << "Directive[" << "Blue" << ",PointSize[" << size * 0.01 << "]]";
         if (size != max_size) {
             out << ",";
         }

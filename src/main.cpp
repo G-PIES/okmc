@@ -28,7 +28,7 @@ int main() {
 
     OkmcSimulation simulation = OkmcSimulation();
     simulation.exporter = new WolframMathematicaExporter();
-    simulation.run(model, 20 * 60);
+    simulation.run(model, 60 * 60);
     return 0;
 }
 
@@ -37,16 +37,16 @@ double random_double_between(double from, double to) {
 }
 
 void generate_objects(Model *model){
-    const int count = 100;
+    const int count = 500;
 
     for (int i = 0; i < count; i++)
     {
-        // TODO: Defect type
         Vector3<double> position = Vector3<double>();
         position.x = random_double_between(model->parameters->x_from, model->parameters->x_to);
         position.y = random_double_between(model->parameters->y_from, model->parameters->y_to);
         position.z = random_double_between(model->parameters->z_from, model->parameters->z_to);
         Defect *defect = new Defect();
+        defect->type = random_double_between(0, 1) < 0.5 ? Interstitial : Vacancy;
         defect->size = 1;
         defect->position = position;
         model->objects.push_back(defect);

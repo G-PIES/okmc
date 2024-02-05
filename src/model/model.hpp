@@ -3,6 +3,7 @@
 #include "vector"
 #include "model_object.hpp"
 #include "event.hpp"
+#include "../vector3.hpp"
 
 class ModelParameters {
 public:
@@ -20,6 +21,8 @@ class Model {
 public:
     Model();
     void init();
+
+    bool is_within_dimensions(Vector3<double> vector);
 
     ModelParameters *parameters;
     std::vector<Event *> events;

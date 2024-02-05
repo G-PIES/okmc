@@ -3,6 +3,7 @@
 
 #include "okmc_simulation.hpp"
 #include "exporters/null_exporter.hpp"
+#include "model/objects/defect.hpp"
 
 int factorial(int n) {
     if (n == 0)
@@ -17,18 +18,21 @@ OkmcSimulation::OkmcSimulation() {
 }
 
 void OkmcSimulation::run(Model *model, double simulation_time) {
+    // TODO: Init random number generation
     model->init();
 
-    std::vector<Event *> events = model->events;
     double currentTime = 0.0;
 
     while (currentTime < simulation_time) {
         double time_increment = calculate_increment(model);
 
+        std::vector<Event *> events = model->events;
+        std::vector<ModelObject *> objects = model->objects;
+
         for (Event *event: events) {
             std::vector<double> probabilities = calculate_event_probabilities(event, time_increment);
 
-            for (ModelObject *object: model->objects) {
+            for (ModelObject *object: objects) {
                 if (object == nullptr) {
                     continue;
                 }
@@ -99,9 +103,44 @@ int OkmcSimulation::calculate_number_of_times(std::vector<double> probabilities,
 }
 
 void OkmcSimulation::process_out_of_box(Model *model) {
-    // TODO
+    for (ModelObject *&object: model->objects) {
+        Defect *defect = static_cast<Defect *>(object);
+        if (defect == nullptr) {
+            continue;
+        }
+        if (!model->is_within_dimensions(defect->position)) {
+            object = nullptr;
+        }
+    }
 }
 
 void OkmcSimulation::process_interactions(Model *model) {
-    // TODO
+    double random_walk_distance = model->parameters->random_walk_distance;
+
+    unsigned int object_count = model->objects.size();
+
+    for (int i = 0; i < object_count; i++) {
+        Defect *first = static_cast<Defect *>(model->objects[i]);
+        if (first == nullptr) {
+            continue;
+        }
+        for (int j = i + 1; j < object_count; j++) {
+            Defect *second = static_cast<Defect *>(model->objects[j]);
+            if (second == nullptr) {
+                continue;
+            }
+
+            if (first->position.distance(second->position) < random_walk_distance) {
+                model->objects[j] = nullptr;
+                if (first->type == second->type) {
+                    first->size++;
+                } else {
+                    first->size--;
+                    if (first->size == 0) {
+                        model->objects[i] = nullptr;
+                    }
+                }
+            }
+        }
+    }
 }
