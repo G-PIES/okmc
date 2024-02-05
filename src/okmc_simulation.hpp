@@ -20,7 +20,6 @@ public:
     void run(Model *model, double simulation_time);
 
     OkmcSimulationParameters *parameters;
-    std::vector<Event *> events;
     Exporter *exporter;
 
 private:

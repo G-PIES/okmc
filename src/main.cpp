@@ -2,6 +2,7 @@
 #include "okmc_simulation.hpp"
 #include "model/events/random_walk.hpp"
 #include "model/objects/defect.hpp"
+#include "exporters/wolfram_mathematica_exporter.hpp"
 
 void generate_objects(Model *model);
 
@@ -12,7 +13,8 @@ int main() {
     model->parameters->migration_energy = 0.34;
     model->parameters->temperature = 130;
     // TODO: 5 * Units.NanoMeters
-    model->parameters->random_walk_distance = 5 * 0.000000001;
+    // TODO: Should be 5 nm, but 500 nm is used to simplify debugging
+    model->parameters->random_walk_distance = 5 * 0.0000001;
     // TODO: 0.1 * Units.MilliMeters
     double size = 0.1 * 0.001;
     model->parameters->x_from = -size / 2;
@@ -25,6 +27,7 @@ int main() {
     generate_objects(model);
 
     OkmcSimulation simulation = OkmcSimulation();
+    simulation.exporter = new WolframMathematicaExporter();
     simulation.run(model, 20 * 60);
     return 0;
 }
@@ -34,7 +37,7 @@ double random_double_between(double from, double to) {
 }
 
 void generate_objects(Model *model){
-    const int count = 500;
+    const int count = 100;
 
     for (int i = 0; i < count; i++)
     {

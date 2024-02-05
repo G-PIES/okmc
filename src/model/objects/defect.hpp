@@ -5,6 +5,6 @@
 
 class Defect : public ModelObject {
 public:
-    double size;
+    int size;
     Vector3<double> position;
 };

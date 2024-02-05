@@ -19,6 +19,7 @@ OkmcSimulation::OkmcSimulation() {
 void OkmcSimulation::run(Model *model, double simulation_time) {
     model->init();
 
+    std::vector<Event *> events = model->events;
     double currentTime = 0.0;
 
     while (currentTime < simulation_time) {
@@ -56,6 +57,7 @@ double OkmcSimulation::random_double() {
 }
 
 double OkmcSimulation::calculate_increment(Model *model) {
+    std::vector<Event *> events = model->events;
     double max_rate = events[0]->get_rate();
     for (Event *event: events) {
         double rate = event->get_rate();
